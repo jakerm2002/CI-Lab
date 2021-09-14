@@ -163,7 +163,6 @@ static value_t calculate_value(node_t *nptr) {
     if(nptr->node_type == NT_LEAF) {
         return nptr->val;
     } else if (nptr->tok == TOK_QUESTION) {
-        printf("yeah.");
         value_t left_val;
 
         if (nptr->children[0]) {
@@ -207,7 +206,7 @@ static value_t calculate_value(node_t *nptr) {
                 return nptr->val;
             }
         }
-        
+
         handle_error(ERR_TYPE);
         return nptr->val;
 
