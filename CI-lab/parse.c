@@ -82,9 +82,11 @@ static node_t *build_leaf(void) {
         return ret;
     } else if (this_token->ttype == TOK_STR) {
         ret->type = STRING_TYPE;
-        ret->val.sval = this_token->repr;
+        char *string_holder = (char *) malloc(sizeof(this_token->repr) + 1);
+        strcpy(string_holder, this_token->repr);
+        ret->val.sval = string_holder;
         return ret;
-    } else {
+    } else if (this_token->ttype == TOK_TRUE || this_token->ttype == TOK_FALSE) {
         //token is a boolean
         ret->type = BOOL_TYPE;
         if (this_token->ttype == TOK_TRUE) {
@@ -93,6 +95,12 @@ static node_t *build_leaf(void) {
             ret->val.bval = false;
         }
         return ret;
+    } else if (this_token->ttype == TOK_FMT_SPEC) {
+        ret->type = FMT_TYPE;
+        ret->val.fval = this_token->repr[0];
+        return ret;
+    } else {
+
     }
 
     //this part will only be reached if syntax error
@@ -117,13 +125,30 @@ static node_t *build_exp(void) {
         return build_leaf();
     if (this_token->ttype == TOK_STR)
         return build_leaf();
+    if (this_token->ttype == TOK_FMT_SPEC)
+        return build_leaf();
     // handle the reserved identifiers, namely true and false
     if (this_token->ttype == TOK_ID) {
         if ((t = check_reserved_ids(this_token->repr)) != TOK_INVALID) {
             this_token->ttype = t;
         }
         return build_leaf();
-    } else {
+    }
+    // if (this_token->ttype == TOK_UMINUS || this_token->ttype == TOK_NOT) {
+    //     node_t *ret = calloc(1, sizeof(node_t));
+    //     if (! ret) {
+    //         // calloc returns NULL if memory allocation fails
+    //         logging(LOG_FATAL, "failed to allocate internal node");
+    //         return NULL;
+    //     }
+
+    //     ret->tok = this_token->ttype;
+
+        
+
+
+    // }
+    else {
         // (STUDENT TODO) implement the logic for internal nodes
         
         //this HAS to be a parenthesis, create an internal node for it
@@ -140,30 +165,49 @@ static node_t *build_exp(void) {
         ret->node_type = NT_INTERNAL;
         ret->type = NO_TYPE;
 
+        bool ternary = false;
+        bool unary = false;
+
         //internal node has been created, now we need to keep going down the tree
-        advance_lexer();
-        // printf("advancing...");
-        // printf("current token is %d\n", this_token->ttype);
-        ret->children[0] = build_exp();
-        // print_tree(ret);
+
+        if (next_token->ttype == TOK_UMINUS || next_token->ttype == TOK_NOT) {
+            unary = true;
+        }
+
+
+        if (!unary) {
+            advance_lexer();//advances past first parenthesis
+            ret->children[0] = build_exp();
+        }
 
         //we have built out the left child, now we deal with the operator
-        advance_lexer(); //should we advance lexer in build_leaf() instead?
+        advance_lexer();
         //we are now at the operator
         ret->tok = this_token->ttype;
-        // printf("current token is %d\n", this_token->ttype);
+        if (ret->tok == TOK_QUESTION) {
+            ternary = true;
+        }
 
         advance_lexer();
 
-        //we are now at the second value
-        ret->children[1] = build_exp();
+        if(unary) {
+            //we are now at the second value
+            ret->children[0] = build_exp();
+        } else {
+            ret->children[1] = build_exp();
+        }
 
         advance_lexer();
+
+        if (ternary && next_token) {
+            advance_lexer();
+            ret->children[2] = build_exp();
+            advance_lexer();
+        }
         //we should now be looking at a right parenthesis
 
-        //somehow need to check for the right number of parenthesis
+        //somehow need to check for the right number of parenthesis HERE
 
-        // print_tree(ret);
         return ret;
     }
 }
@@ -208,15 +252,12 @@ static node_t *build_root(void) {
     // build an expression based on the current token
     // this will be where the majority of the tree is recursively constructed
     ret->children[0] = build_exp();
-    // print_tree(ret);
-    // printf("recursion finished!\n");
 
     // if the next token is End of Line, we're done
     if (next_token->ttype == TOK_EOL) {
-        // print_tree(ret);
         return ret;
     }
-    else {                                     
+    else {
     /* At this point, we've finished building the main expression. The only
      * syntactically valid tokens that could remain would be format specifiers */    
         

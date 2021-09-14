@@ -17,7 +17,6 @@ int main(int argc, char* argv[]) {
         node_t *nptr = read_and_parse();
         infer_and_eval(nptr);
         format_and_print(nptr);
-        // print_tree(nptr);
         cleanup(nptr);
         flush();
     }
