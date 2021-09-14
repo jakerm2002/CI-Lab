@@ -82,7 +82,8 @@ static type_t find_node_type(node_t *nptr) {
                 nptr->type = BOOL_TYPE;
                 return nptr->type;
             }
-        } else if (nptr->tok == TOK_QUESTION) {
+        } 
+        else if (nptr->tok == TOK_QUESTION) {
             if (right_type == third_type) {
                 if (right_type == INT_TYPE) {
                     nptr->type = INT_TYPE;
@@ -95,7 +96,8 @@ static type_t find_node_type(node_t *nptr) {
                     return nptr->type;
                 }
             }
-        } else if (nptr->tok == TOK_UMINUS) {
+        } 
+        else if (nptr->tok == TOK_UMINUS) {
             if (left_type == INT_TYPE) {
                 nptr->type = INT_TYPE;
                 return nptr->type;
@@ -160,11 +162,61 @@ static value_t calculate_value(node_t *nptr) {
 
     if(nptr->node_type == NT_LEAF) {
         return nptr->val;
-    } else {
+    } else if (nptr->tok == TOK_QUESTION) {
+        printf("yeah.");
+        value_t left_val;
+
+        if (nptr->children[0]) {
+            left_val = calculate_value(nptr->children[0]);
+        }
+        
+        if (left_val.bval) {
+            value_t right_val;
+            if (nptr->children[1]) {
+                right_val = calculate_value(nptr->children[1]);
+            }
+            if (nptr->type == INT_TYPE) {
+                nptr->tok = TOK_NUM;
+                nptr->val.ival = right_val.ival;
+                return nptr->val;
+            } else if (nptr->type == BOOL_TYPE) {
+                nptr->tok = (right_val.bval) ? TOK_TRUE : TOK_FALSE;
+                nptr->val.ival = right_val.bval;
+                return nptr->val;
+            } else if (nptr->type == STRING_TYPE) {
+                nptr->tok = TOK_STR;
+                nptr->val.sval = right_val.sval;
+                return nptr->val;
+            }
+        } else {
+            value_t third_val;
+            if (nptr->children[2]) {
+                third_val = calculate_value(nptr->children[2]);
+            }
+            if (nptr->type == INT_TYPE) {
+                nptr->tok = TOK_NUM;
+                nptr->val.ival = third_val.ival;
+                return nptr->val;
+            } else if (nptr->type == BOOL_TYPE) {
+                nptr->tok = (third_val.bval) ? TOK_TRUE : TOK_FALSE;
+                nptr->val.ival = third_val.bval;
+                return nptr->val;
+            } else if (nptr->type == STRING_TYPE) {
+                nptr->tok = TOK_STR;
+                nptr->val.sval = third_val.sval;
+                return nptr->val;
+            }
+        }
+        
+        handle_error(ERR_TYPE);
+        return nptr->val;
+
+    }  
+    else {
         //traverses further down left subtree
         value_t left_val;
         value_t right_val;
-        value_t third_val;
+        // value_t third_val;
 
         // left_val = calculate_value(nptr->children[0]);
         // right_val = calculate_value(nptr->children[1]);
@@ -176,9 +228,9 @@ static value_t calculate_value(node_t *nptr) {
         if (nptr->children[1]) {
             right_val = calculate_value(nptr->children[1]);
         }
-        if (nptr->children[2]) {
-            third_val = calculate_value(nptr->children[2]);
-        }
+        // if (nptr->children[2]) {
+        //     third_val = calculate_value(nptr->children[2]);
+        // }
 
         //ADD INTEGERS
         if(nptr->tok == TOK_PLUS && nptr->type == INT_TYPE) {
@@ -241,7 +293,7 @@ static value_t calculate_value(node_t *nptr) {
                 return nptr->val;
             }
         }
-        //COMPARE < INTEGERS
+        //COMPARE < INTEGERS/STRINGS
         else if (nptr->tok == TOK_LT) {
             if (nptr->type == INT_TYPE) {
                 bool result = (left_val.ival) < (right_val.ival);
@@ -259,7 +311,7 @@ static value_t calculate_value(node_t *nptr) {
                 } else {
                     nptr->tok = TOK_FALSE;
                 }
-                nptr->val.bval = result;
+                nptr->val.bval = !result;
                 return nptr->val;
             }
         }
@@ -327,37 +379,39 @@ static value_t calculate_value(node_t *nptr) {
             return nptr->val;
         }
         //TERNARY OPERATOR
-        else if (nptr->tok == TOK_QUESTION) {
-            if (left_val.bval) {
-                if (nptr->type == INT_TYPE) {
-                    nptr->tok = TOK_NUM;
-                    nptr->val.ival = right_val.ival;
-                    return nptr->val;
-                } else if (nptr->type == BOOL_TYPE) {
-                    nptr->tok = (right_val.bval) ? TOK_TRUE : TOK_FALSE;
-                    nptr->val.ival = right_val.bval;
-                    return nptr->val;
-                } else if (nptr->type == STRING_TYPE) {
-                    nptr->tok = TOK_STR;
-                    nptr->val.sval = right_val.sval;
-                    return nptr->val;
-                }
-            } else {
-                if (nptr->type == INT_TYPE) {
-                    nptr->tok = TOK_NUM;
-                    nptr->val.ival = third_val.ival;
-                    return nptr->val;
-                } else if (nptr->type == BOOL_TYPE) {
-                    nptr->tok = (third_val.bval) ? TOK_TRUE : TOK_FALSE;
-                    nptr->val.ival = third_val.bval;
-                    return nptr->val;
-                } else if (nptr->type == STRING_TYPE) {
-                    nptr->tok = TOK_STR;
-                    nptr->val.sval = third_val.sval;
-                    return nptr->val;
-                }
-            }
-        } else if (nptr->tok == TOK_UMINUS) {
+        // else if (nptr->tok == TOK_QUESTION) {
+        //     if (left_val.bval) {
+        //         if (nptr->type == INT_TYPE) {
+        //             nptr->tok = TOK_NUM;
+        //             nptr->val.ival = right_val.ival;
+        //             return nptr->val;
+        //         } else if (nptr->type == BOOL_TYPE) {
+        //             nptr->tok = (right_val.bval) ? TOK_TRUE : TOK_FALSE;
+        //             nptr->val.ival = right_val.bval;
+        //             return nptr->val;
+        //         } else if (nptr->type == STRING_TYPE) {
+        //             nptr->tok = TOK_STR;
+        //             nptr->val.sval = right_val.sval;
+        //             return nptr->val;
+        //         }
+        //     } else {
+        //         if (nptr->type == INT_TYPE) {
+        //             nptr->tok = TOK_NUM;
+        //             nptr->val.ival = third_val.ival;
+        //             return nptr->val;
+        //         } else if (nptr->type == BOOL_TYPE) {
+        //             nptr->tok = (third_val.bval) ? TOK_TRUE : TOK_FALSE;
+        //             nptr->val.ival = third_val.bval;
+        //             return nptr->val;
+        //         } else if (nptr->type == STRING_TYPE) {
+        //             nptr->tok = TOK_STR;
+        //             nptr->val.sval = third_val.sval;
+        //             return nptr->val;
+        //         }
+        //     }
+        // } 
+        //NEGATION OPERATOR
+        else if (nptr->tok == TOK_UMINUS) {
             if (nptr->type == INT_TYPE) {
                 nptr->tok = TOK_NUM;
                 nptr->val.ival = (-1) * left_val.ival;
