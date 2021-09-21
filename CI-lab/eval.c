@@ -26,6 +26,7 @@ static value_t calculate_value(node_t *nptr);
 
 static void infer_type(node_t *nptr) {
 
+
     //we must do a post-order traversal of the tree here
     //we must visit EVERY INTERNAL NODE
 
@@ -44,7 +45,11 @@ static void infer_type(node_t *nptr) {
 static type_t find_node_type(node_t *nptr) {
     if(!nptr) {
         return NO_TYPE;
-    } else if(nptr->node_type == NT_LEAF) {
+    } else if (nptr->tok == TOK_ID) {
+        //get the type of entry_t from the variable name
+        return get(nptr->val.sval) -> type;
+    }
+    else if(nptr->node_type == NT_LEAF) {
         return nptr->type;
     } else {
         //traverses further down left subtree
@@ -159,10 +164,15 @@ static void eval_node(node_t *nptr) {
 }
 
 static value_t calculate_value(node_t *nptr) {
-
-    if(nptr->node_type == NT_LEAF) {
+    if (nptr->tok == TOK_ID && nptr->node_type == NT_LEAF) {
+        nptr->type = get(nptr->val.sval)->type;
+        nptr->val = (get(nptr->val.sval)->val);
         return nptr->val;
-    } else if (nptr->tok == TOK_QUESTION) {
+    } else if(nptr->node_type == NT_LEAF) {
+        return nptr->val;
+    }
+    //TERNARY OPERATOR
+    else if (nptr->tok == TOK_QUESTION) {
         value_t left_val;
 
         if (nptr->children[0]) {
@@ -377,38 +387,6 @@ static value_t calculate_value(node_t *nptr) {
             nptr->val.sval = string_holder;
             return nptr->val;
         }
-        //TERNARY OPERATOR
-        // else if (nptr->tok == TOK_QUESTION) {
-        //     if (left_val.bval) {
-        //         if (nptr->type == INT_TYPE) {
-        //             nptr->tok = TOK_NUM;
-        //             nptr->val.ival = right_val.ival;
-        //             return nptr->val;
-        //         } else if (nptr->type == BOOL_TYPE) {
-        //             nptr->tok = (right_val.bval) ? TOK_TRUE : TOK_FALSE;
-        //             nptr->val.ival = right_val.bval;
-        //             return nptr->val;
-        //         } else if (nptr->type == STRING_TYPE) {
-        //             nptr->tok = TOK_STR;
-        //             nptr->val.sval = right_val.sval;
-        //             return nptr->val;
-        //         }
-        //     } else {
-        //         if (nptr->type == INT_TYPE) {
-        //             nptr->tok = TOK_NUM;
-        //             nptr->val.ival = third_val.ival;
-        //             return nptr->val;
-        //         } else if (nptr->type == BOOL_TYPE) {
-        //             nptr->tok = (third_val.bval) ? TOK_TRUE : TOK_FALSE;
-        //             nptr->val.ival = third_val.bval;
-        //             return nptr->val;
-        //         } else if (nptr->type == STRING_TYPE) {
-        //             nptr->tok = TOK_STR;
-        //             nptr->val.sval = third_val.sval;
-        //             return nptr->val;
-        //         }
-        //     }
-        // } 
         //NEGATION OPERATOR
         else if (nptr->tok == TOK_UMINUS) {
             if (nptr->type == INT_TYPE) {
@@ -450,8 +428,18 @@ void eval_root(node_t *nptr) {
     // check running status
     if (terminate || ignore_input) return;
 
+    //check for lone variable - piazza post @569
+    if(!nptr->children[1] && nptr->children[0] && nptr->children[0]->type == ID_TYPE) {
+        //assign the root the value of our variablee
+        // nptr->val.sval = nptr->children[0]->val.sval;
+        nptr->val = get(nptr->children[0]->val.sval)->val;
+
+        //assign the root node the type of the variable
+        nptr->type = get(nptr->children[0]->val.sval)->type;
+    }
     // check for assignment
-    if (nptr->type == ID_TYPE) {
+    if(nptr->type == ID_TYPE) {
+    // else if (nptr->type == ID_TYPE) {
         eval_node(nptr->children[1]);
         if (terminate || ignore_input) return;
         
@@ -488,6 +476,7 @@ void eval_root(node_t *nptr) {
  */
 
 void infer_and_eval(node_t *nptr) {
+    // print_tree(nptr);
     infer_root(nptr);
     eval_root(nptr);
     print_tree(nptr);

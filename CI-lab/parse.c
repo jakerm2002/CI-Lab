@@ -99,7 +99,14 @@ static node_t *build_leaf(void) {
         ret->type = FMT_TYPE;
         ret->val.fval = this_token->repr[0];
         return ret;
-    } else {
+    } else if (this_token->ttype == TOK_ID) {
+        ret->type = ID_TYPE;
+        char *string_holder = (char *) malloc(sizeof(this_token->repr) + 1);
+        strcpy(string_holder, this_token->repr);
+        ret->val.sval = string_holder;
+        return ret;
+    }
+    else {
 
     }
 
@@ -134,20 +141,7 @@ static node_t *build_exp(void) {
         }
         return build_leaf();
     }
-    // if (this_token->ttype == TOK_UMINUS || this_token->ttype == TOK_NOT) {
-    //     node_t *ret = calloc(1, sizeof(node_t));
-    //     if (! ret) {
-    //         // calloc returns NULL if memory allocation fails
-    //         logging(LOG_FATAL, "failed to allocate internal node");
-    //         return NULL;
-    //     }
 
-    //     ret->tok = this_token->ttype;
-
-        
-
-
-    // }
     else {
         // (STUDENT TODO) implement the logic for internal nodes
         
@@ -248,6 +242,9 @@ static node_t *build_root(void) {
         }
         return ret;
     }
+    // else if (this_token->ttype == TOK_ID && next_token == TOK_EOL) {
+    //     ret->type = 
+    // }
     
     // build an expression based on the current token
     // this will be where the majority of the tree is recursively constructed
