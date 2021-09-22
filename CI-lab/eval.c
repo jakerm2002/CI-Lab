@@ -50,8 +50,8 @@ static type_t find_node_type(node_t *nptr) {
         
         if (get(nptr->val.sval)) {
             nptr->type = get(nptr->val.sval) -> type;
-        } else {
-            handle_error(ERR_TYPE);
+        } else { //undefined var
+            handle_error(ERR_UNDEFINED);
         }
 
         return nptr->type;
