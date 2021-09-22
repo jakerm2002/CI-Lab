@@ -177,6 +177,15 @@ static node_t *build_exp(void) {
         //we have built out the left child, now we deal with the operator
         advance_lexer();
         //we are now at the operator
+
+        //or, if there are redundant parenthesis, it could be a right parenthesis
+        if (this_token->ttype == TOK_RPAREN) {
+            printf("Helo!");
+            //create a dummy node
+            ret->tok = TOK_IDENTITY;
+            return ret;
+        }
+
         ret->tok = this_token->ttype;
         if (ret->tok == TOK_QUESTION) {
             ternary = true;

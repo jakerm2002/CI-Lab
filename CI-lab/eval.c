@@ -115,6 +115,9 @@ static type_t find_node_type(node_t *nptr) {
                 nptr->type = BOOL_TYPE;
                 return nptr->type;
             }
+        } else if (nptr->tok == TOK_IDENTITY) {
+            nptr->type = left_type;
+            return nptr->type;
         }
 
         handle_error(ERR_TYPE);
@@ -220,7 +223,7 @@ static value_t calculate_value(node_t *nptr) {
         handle_error(ERR_TYPE);
         return nptr->val;
 
-    }  
+    }  //END OF TERNARY OPERATOR
     else {
         //traverses further down left subtree
         value_t left_val;
@@ -242,6 +245,10 @@ static value_t calculate_value(node_t *nptr) {
         // }
 
         //ADD INTEGERS
+        if (nptr->tok == TOK_IDENTITY) {
+            nptr->val = left_val;
+            return nptr->val;
+        }
         if(nptr->tok == TOK_PLUS && nptr->type == INT_TYPE) {
             nptr->tok = TOK_NUM;
             nptr->val.ival = (left_val.ival) + (right_val.ival);
@@ -476,7 +483,6 @@ void eval_root(node_t *nptr) {
  */
 
 void infer_and_eval(node_t *nptr) {
-    // print_tree(nptr);
     infer_root(nptr);
     eval_root(nptr);
     print_tree(nptr);
