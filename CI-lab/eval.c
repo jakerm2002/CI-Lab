@@ -47,6 +47,9 @@ static type_t find_node_type(node_t *nptr) {
         return NO_TYPE;
     } else if (nptr->tok == TOK_ID) {
         //get the type of entry_t from the variable name
+        
+        nptr->type = get(nptr->val.sval) -> type;
+
         return get(nptr->val.sval) -> type;
     }
     else if(nptr->node_type == NT_LEAF) {
@@ -386,7 +389,7 @@ static value_t calculate_value(node_t *nptr) {
         //MULTIPLY STRINGS
         else if(nptr->tok == TOK_TIMES && nptr->type == STRING_TYPE) {
             int repeat = right_val.ival;
-            char *string_holder = (char *) calloc(sizeof(left_val.sval) * repeat + 1, 1);
+            char *string_holder = (char *) calloc((sizeof(left_val.sval) * repeat) + 1, 1);
             nptr->tok = TOK_STR;
             for (int i = 0; i < repeat; ++i) {
                 strcat(string_holder, left_val.sval);

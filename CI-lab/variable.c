@@ -88,7 +88,8 @@ entry_t * init_entry(char *id, node_t *nptr) {
     strcpy(eptr->id, id);
     eptr->type = nptr->type;
     if (eptr->type == STRING_TYPE) {
-        (eptr->val).sval = (char *) malloc(strlen(nptr->val.sval) + 1);
+        // (eptr->val).sval = (char *) malloc(strlen(nptr->val.sval) + 1);
+        (eptr->val).sval = (char *) calloc(1, strlen(nptr->val.sval) + 1);
         if (! eptr->val.sval) {
             logging(LOG_FATAL, "failed to allocate string");
             free(eptr->id);
