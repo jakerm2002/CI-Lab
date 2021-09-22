@@ -296,19 +296,21 @@ static value_t calculate_value(node_t *nptr) {
                 bool result = (left_val.ival) > (right_val.ival);
                 if (result == true) {
                     nptr->tok = TOK_TRUE;
+                    nptr->val.bval = true;
                 } else {
                     nptr->tok = TOK_FALSE;
+                    nptr->val.bval = false;
                 }
-                nptr->val.bval = result;
                 return nptr->val;
             } else if (nptr->type == BOOL_TYPE) {
                 int result = strcmp(left_val.sval, right_val.sval);
                 if (result > 0) {
-                    nptr->tok = TOK_TRUE;
+                    // nptr->tok = TOK_TRUE;
+                    nptr->val.bval = true;
                 } else {
                     nptr->tok = TOK_FALSE;
+                    nptr->val.bval = false;
                 }
-                nptr->val.bval = result;
                 return nptr->val;
             }
         }
@@ -318,19 +320,21 @@ static value_t calculate_value(node_t *nptr) {
                 bool result = (left_val.ival) < (right_val.ival);
                 if (result) {
                     nptr->tok = TOK_TRUE;
+                    nptr->val.bval = true;
                 } else {
                     nptr->tok = TOK_FALSE;
+                    nptr->val.bval = false;
                 }
-                nptr->val.bval = result;
                 return nptr->val;
             } else if (nptr->type == BOOL_TYPE) {
                 int result = strcmp(left_val.sval, right_val.sval);
                 if (result < 0) {
                     nptr->tok = TOK_TRUE;
+                    nptr->val.bval = true;
                 } else {
                     nptr->tok = TOK_FALSE;
+                    nptr->val.bval = false;
                 }
-                nptr->val.bval = !result;
                 return nptr->val;
             }
         }
