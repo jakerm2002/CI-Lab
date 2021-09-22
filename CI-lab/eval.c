@@ -107,8 +107,6 @@ static type_t find_node_type(node_t *nptr) {
                     nptr->type = STRING_TYPE;
                     return nptr->type;
                 }
-            } else {
-                handle_error(ERR_TYPE);
             }
         } 
         else if (nptr->tok == TOK_UMINUS) {
@@ -199,7 +197,6 @@ static value_t calculate_value(node_t *nptr) {
             if (nptr->type == INT_TYPE) {
                 nptr->tok = TOK_NUM;
                 nptr->val.ival = right_val.ival;
-                // handle_error(ERR_TYPE);
                 return nptr->val;
             } else if (nptr->type == BOOL_TYPE) {
                 nptr->tok = (right_val.bval) ? TOK_TRUE : TOK_FALSE;
@@ -322,30 +319,28 @@ static value_t calculate_value(node_t *nptr) {
             }
         }
         //COMPARE < INTEGERS/STRINGS
-        else if (nptr->tok == TOK_LT) {
-            if (nptr->type == BOOL_TYPE) {
-                if (left_val.sval) { //if the values are strings
-                    int result = strcmp(left_val.sval, right_val.sval);
-                    if (result < 0) {
-                        nptr->tok = TOK_TRUE;
-                        nptr->val.bval = true;
-                    } else {
-                        nptr->tok = TOK_FALSE;
-                        nptr->val.bval = false;
-                    }
-                    return nptr->val;
-                } else {
-                    bool result = (left_val.ival) < (right_val.ival);
-                    if (result) {
-                        nptr->tok = TOK_TRUE;
-                        nptr->val.bval = true;
-                    } else {
-                        nptr->tok = TOK_FALSE;
-                        nptr->val.bval = false;
-                    }
-                    return nptr->val;
-                }
-            }
+        else if (nptr->tok == TOK_LT) {	
+            if (nptr->type == INT_TYPE) {	
+                bool result = (left_val.ival) < (right_val.ival);	
+                if (result) {	
+                    nptr->tok = TOK_TRUE;	
+                    nptr->val.bval = true;	
+                } else {	
+                    nptr->tok = TOK_FALSE;	
+                    nptr->val.bval = false;	
+                }	
+                return nptr->val;	
+            } else if (nptr->type == BOOL_TYPE) {	
+                int result = strcmp(left_val.sval, right_val.sval);	
+                if (result < 0) {	
+                    nptr->tok = TOK_TRUE;	
+                    nptr->val.bval = true;	
+                } else {	
+                    nptr->tok = TOK_FALSE;	
+                    nptr->val.bval = false;	
+                }	
+                return nptr->val;	
+            }	
         }
         //COMPARE == (~) INTEGERS AND STRINGS
         else if (nptr->tok == TOK_EQ) {
