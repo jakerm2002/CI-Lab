@@ -107,6 +107,8 @@ static type_t find_node_type(node_t *nptr) {
                     nptr->type = STRING_TYPE;
                     return nptr->type;
                 }
+            } else {
+                handle_error(ERR_TYPE);
             }
         } 
         else if (nptr->tok == TOK_UMINUS) {
@@ -195,9 +197,9 @@ static value_t calculate_value(node_t *nptr) {
                 right_val = calculate_value(nptr->children[1]);
             }
             if (nptr->type == INT_TYPE) {
-                // nptr->tok = TOK_NUM;
-                // nptr->val.ival = right_val.ival;
-                handle_error(ERR_TYPE);
+                nptr->tok = TOK_NUM;
+                nptr->val.ival = right_val.ival;
+                // handle_error(ERR_TYPE);
                 return nptr->val;
             } else if (nptr->type == BOOL_TYPE) {
                 nptr->tok = (right_val.bval) ? TOK_TRUE : TOK_FALSE;
