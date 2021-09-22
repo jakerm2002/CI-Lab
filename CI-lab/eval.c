@@ -85,8 +85,6 @@ static type_t find_node_type(node_t *nptr) {
             if ((left_type == right_type) && (left_type == INT_TYPE)) {                // printf("conndition met!\n");
                 nptr->type = INT_TYPE;
                 return nptr->type;
-                // nptr->type = BOOL_TYPE;
-                // return nptr->type;
             } else if ((left_type == right_type) && (left_type == STRING_TYPE)) {
                 nptr->type = BOOL_TYPE;
                 return nptr->type;
@@ -98,8 +96,6 @@ static type_t find_node_type(node_t *nptr) {
             }
         } 
         else if (nptr->tok == TOK_QUESTION) {
-            printf("%d\n", right_type);
-            printf("%d\n", third_type);
             if (right_type == third_type) {
                 if (right_type == INT_TYPE) {
                     nptr->type = INT_TYPE;
@@ -111,8 +107,6 @@ static type_t find_node_type(node_t *nptr) {
                     nptr->type = STRING_TYPE;
                     return nptr->type;
                 }
-            } else {
-                handle_error(ERR_TYPE);
             }
         } 
         else if (nptr->tok == TOK_UMINUS) {
