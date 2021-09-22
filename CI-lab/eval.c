@@ -84,7 +84,7 @@ static type_t find_node_type(node_t *nptr) {
         } else if (nptr->tok == TOK_LT || nptr->tok == TOK_GT || nptr->tok == TOK_EQ) {
             if ((left_type == right_type) && (left_type == INT_TYPE)) {                // printf("conndition met!\n");
                 nptr->type = INT_TYPE;
-                return nptr->type;
+                return BOOL_TYPE;
             } else if ((left_type == right_type) && (left_type == STRING_TYPE)) {
                 nptr->type = BOOL_TYPE;
                 return nptr->type;
@@ -96,6 +96,8 @@ static type_t find_node_type(node_t *nptr) {
             }
         } 
         else if (nptr->tok == TOK_QUESTION) {
+            printf("%d\n", right_type);
+            printf("%d\n", third_type);
             if (right_type == third_type) {
                 if (right_type == INT_TYPE) {
                     nptr->type = INT_TYPE;
@@ -107,6 +109,8 @@ static type_t find_node_type(node_t *nptr) {
                     nptr->type = STRING_TYPE;
                     return nptr->type;
                 }
+            } else {
+                handle_error(ERR_TYPE);
             }
         } 
         else if (nptr->tok == TOK_UMINUS) {
@@ -195,8 +199,9 @@ static value_t calculate_value(node_t *nptr) {
                 right_val = calculate_value(nptr->children[1]);
             }
             if (nptr->type == INT_TYPE) {
-                nptr->tok = TOK_NUM;
-                nptr->val.ival = right_val.ival;
+                // nptr->tok = TOK_NUM;
+                // nptr->val.ival = right_val.ival;
+                handle_error(ERR_TYPE);
                 return nptr->val;
             } else if (nptr->type == BOOL_TYPE) {
                 nptr->tok = (right_val.bval) ? TOK_TRUE : TOK_FALSE;
