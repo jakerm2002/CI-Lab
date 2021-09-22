@@ -446,7 +446,6 @@ void eval_root(node_t *nptr) {
     }
     // check for assignment
     if(nptr->type == ID_TYPE) {
-    // else if (nptr->type == ID_TYPE) {
         eval_node(nptr->children[1]);
         if (terminate || ignore_input) return;
         

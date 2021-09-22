@@ -116,6 +116,50 @@ void put(char *id, node_t *nptr) {
     //get the hash for this id
     int index = hash_function(id);
 
+    // //if this linked list has not been intiialized yet
+    // if (!var_table->entries[index]) {
+    //     var_table->entries[index] = init_entry(id, nptr);
+    //     var_table->entries[index]->next = NULL;
+    // } else { //the value may be present, we must find it
+
+    //     //we must traverse through all entries
+    //     entry_t *current_node = var_table->entries[index];
+    //     entry_t *prev_node = NULL;
+
+    //     //while current node is not null
+    //     while (current_node) {
+    //         //if the id of this node matches our id
+    //         if (*current_node->id == *id) {
+    //             //we must replace this entry
+    //             //free the memory!!
+    //             entry_t *next_temp = NULL;
+    //             if(current_node->next) {
+    //                 next_temp = current_node->next;
+    //             }
+
+    //             entry_t *temp_node = init_entry(id, nptr);
+                
+
+    //             delete_entry(current_node);
+    //             current_node = temp_node;
+    //             current_node->next = next_temp;
+    //             if(prev_node) {
+    //                 prev_node->next = current_node;
+    //             }
+
+    //             //since we have found and replaced the variable, we are finished
+    //             return;
+    //         }
+
+    //         //move on to the next node
+    //         prev_node = current_node;
+    //         current_node = current_node->next;
+    //     }
+    //     //we have reached the end, should append a new entry
+    //     prev_node -> next = init_entry(id, nptr);
+        
+    // }
+
     //if this linked list has not been intiialized yet
     if (!var_table->entries[index]) {
         var_table->entries[index] = init_entry(id, nptr);
@@ -129,11 +173,23 @@ void put(char *id, node_t *nptr) {
         //while current node is not null
         while (current_node) {
             //if the id of this node matches our id
-            if (current_node->id == id) {
+            if (*current_node->id == *id) {
                 //we must replace this entry
                 //free the memory!!
+                entry_t *next_temp = NULL;
+                if(current_node->next) {
+                    next_temp = current_node->next;
+                }
                 delete_entry(current_node);
-                current_node = init_entry(id, nptr);
+                entry_t *temp_node = init_entry(id, nptr);
+                *current_node = *temp_node;
+                current_node->next = next_temp;
+                if(prev_node) {
+                    prev_node->next = current_node;
+                }
+
+                //since we have found and replaced the variable, we are finished
+                return;
             }
 
             //move on to the next node
