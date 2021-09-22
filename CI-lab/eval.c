@@ -48,9 +48,13 @@ static type_t find_node_type(node_t *nptr) {
     } else if (nptr->tok == TOK_ID) {
         //get the type of entry_t from the variable name
         
-        nptr->type = get(nptr->val.sval) -> type;
+        if (get(nptr->val.sval)) {
+            nptr->type = get(nptr->val.sval) -> type;
+        } else {
+            handle_error(ERR_TYPE);
+        }
 
-        return get(nptr->val.sval) -> type;
+        return nptr->type;
     }
     else if(nptr->node_type == NT_LEAF) {
         return nptr->type;

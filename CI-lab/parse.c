@@ -180,7 +180,6 @@ static node_t *build_exp(void) {
 
         //or, if there are redundant parenthesis, it could be a right parenthesis
         if (this_token->ttype == TOK_RPAREN) {
-            printf("Helo!");
             //create a dummy node
             ret->tok = TOK_IDENTITY;
             return ret;
